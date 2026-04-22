@@ -1,0 +1,41 @@
+:root {
+  font-family: 'Avenir Next', 'Nunito Sans', 'Sarabun', 'Noto Sans Thai', 'Segoe UI', sans-serif;
+  line-height: 1.45;
+  font-weight: 400;
+  color: #1c2a3d;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(255, 192, 110, 0.14), transparent 36%),
+    radial-gradient(circle at 90% 0%, rgba(71, 146, 255, 0.18), transparent 33%),
+    linear-gradient(180deg, #f9fbff, #f1f5fb 45%, #edf2f8);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --ink-strong: #17263c;
+  --ink-main: #213247;
+  --ink-dim: #5f7187;
+  --panel-bg: rgba(255, 255, 255, 0.84);
+  --line-main: #b9c8db;
+  --line-soft: #d8e3ef;
+  --chip-bg: #f3f7fc;
+  --chip-text: #2a3f57;
+  --accent-main: #2d71d2;
+  --accent-soft: #7fb2ff;
+  --thai-accent: #f19a3e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  color: var(--ink-main);
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
