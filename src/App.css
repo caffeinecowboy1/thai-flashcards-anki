@@ -58,6 +58,10 @@
   gap: 0.75rem;
 }
 
+.setting-row + .setting-row {
+  margin-top: 0.72rem;
+}
+
 .setting-row label {
   font-weight: 600;
   color: var(--ink-main);
@@ -78,6 +82,12 @@
   outline: 2px solid var(--accent-soft);
   outline-offset: 2px;
   border-color: var(--accent-main);
+}
+
+.setting-checkbox input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-main);
 }
 
 .deck-grid {

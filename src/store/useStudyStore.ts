@@ -7,12 +7,14 @@ import type { CardRating, Deck, DeckProgress, StudySession } from '../types'
 type PersistedState = {
   version: number
   dailyNewLimit: number
+  shuffleSessions: boolean
   progressByDeck: Record<string, DeckProgress>
 }
 
 type StudyStore = PersistedState & {
   session: StudySession | null
   setDailyNewLimit: (value: number) => void
+  setShuffleSessions: (value: boolean) => void
   startSession: (deck: Deck) => void
   rateCard: (deck: Deck, cardId: string, rating: CardRating) => void
   endSession: () => void
@@ -34,22 +36,29 @@ export const useStudyStore = create<StudyStore>()(
     (set, get) => ({
       version: 1,
       dailyNewLimit: 12,
+      shuffleSessions: true,
       progressByDeck: {},
       session: null,
       setDailyNewLimit: (value) => {
         const safe = Number.isNaN(value) ? 12 : Math.min(50, Math.max(1, value))
         set({ dailyNewLimit: safe })
       },
+      setShuffleSessions: (value) => {
+        set({ shuffleSessions: value })
+      },
       startSession: (deck) => {
+        const shuffle = get().shuffleSessions
         const queue = buildDeckQueue(
           deck,
           get().progressByDeck[deck.id],
           get().dailyNewLimit,
+          shuffle,
         )
         set({
           session: {
             deckId: deck.id,
             queue,
+            shuffle,
             reviewedCardIds: [],
             stats: defaultStats(),
           },
@@ -118,6 +127,7 @@ export const useStudyStore = create<StudyStore>()(
       partialize: (state) => ({
         version: state.version,
         dailyNewLimit: state.dailyNewLimit,
+        shuffleSessions: state.shuffleSessions,
         progressByDeck: state.progressByDeck,
       }),
       merge: (persisted, current) => ({

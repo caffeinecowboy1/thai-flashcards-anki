@@ -42,6 +42,7 @@ export type StudyStats = {
 export type StudySession = {
   deckId: string
   queue: string[]
+  shuffle: boolean
   reviewedCardIds: string[]
   stats: StudyStats
 }

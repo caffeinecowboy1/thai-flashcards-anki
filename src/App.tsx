@@ -22,9 +22,11 @@ function App() {
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
   const dailyNewLimit = useStudyStore((state) => state.dailyNewLimit)
+  const shuffleSessions = useStudyStore((state) => state.shuffleSessions)
   const progressByDeck = useStudyStore((state) => state.progressByDeck)
   const session = useStudyStore((state) => state.session)
   const setDailyNewLimit = useStudyStore((state) => state.setDailyNewLimit)
+  const setShuffleSessions = useStudyStore((state) => state.setShuffleSessions)
   const startSession = useStudyStore((state) => state.startSession)
   const rateCard = useStudyStore((state) => state.rateCard)
   const endSession = useStudyStore((state) => state.endSession)
@@ -109,6 +111,15 @@ function App() {
                   commitDailyNewLimit()
                 }
               }}
+            />
+          </div>
+          <div className="setting-row setting-checkbox">
+            <label htmlFor="shuffle-sessions">Shuffle cards in session</label>
+            <input
+              id="shuffle-sessions"
+              type="checkbox"
+              checked={shuffleSessions}
+              onChange={(event) => setShuffleSessions(event.target.checked)}
             />
           </div>
         </section>
@@ -223,6 +234,9 @@ function App() {
             </p>
             <p>
               <strong>Remaining:</strong> {session.queue.length}
+            </p>
+            <p>
+              <strong>Order:</strong> {session.shuffle ? 'Shuffled' : 'Due then New'}
             </p>
             <p>
               <strong>Reviewed:</strong> {session.stats.reviewed}

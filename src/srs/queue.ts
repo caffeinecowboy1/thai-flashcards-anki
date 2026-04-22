@@ -18,6 +18,7 @@ export const buildDeckQueue = (
   deck: Deck,
   deckProgress: DeckProgress | undefined,
   dailyNewLimit: number,
+  shuffle: boolean,
 ): string[] => {
   const now = new Date()
   const due: CardState[] = []
@@ -36,7 +37,17 @@ export const buildDeckQueue = (
 
   due.sort((a, b) => new Date(a.dueAt).getTime() - new Date(b.dueAt).getTime())
   const newSlice = brandNew.slice(0, dailyNewLimit)
-  return [...due.map((item) => item.cardId), ...newSlice]
+  const queue = [...due.map((item) => item.cardId), ...newSlice]
+  if (!shuffle) {
+    return queue
+  }
+  for (let i = queue.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1))
+    const temp = queue[i]
+    queue[i] = queue[j]
+    queue[j] = temp
+  }
+  return queue
 }
 
 export const getDeckStats = (
