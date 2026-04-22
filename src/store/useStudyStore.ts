@@ -2,12 +2,13 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { buildDeckQueue } from '../srs/queue'
 import { applySm2Rating } from '../srs/scheduler'
-import type { CardRating, Deck, DeckProgress, StudySession } from '../types'
+import type { CardRating, Deck, DeckProgress, StudyDirection, StudySession } from '../types'
 
 type PersistedState = {
   version: number
   dailyNewLimit: number
   shuffleSessions: boolean
+  studyDirection: StudyDirection
   progressByDeck: Record<string, DeckProgress>
 }
 
@@ -15,6 +16,7 @@ type StudyStore = PersistedState & {
   session: StudySession | null
   setDailyNewLimit: (value: number) => void
   setShuffleSessions: (value: boolean) => void
+  setStudyDirection: (value: StudyDirection) => void
   startSession: (deck: Deck) => void
   rateCard: (deck: Deck, cardId: string, rating: CardRating) => void
   endSession: () => void
@@ -34,9 +36,10 @@ const defaultStats = () => ({
 export const useStudyStore = create<StudyStore>()(
   persist(
     (set, get) => ({
-      version: 1,
+      version: 2,
       dailyNewLimit: 12,
       shuffleSessions: true,
+      studyDirection: 'thaiToEnglish',
       progressByDeck: {},
       session: null,
       setDailyNewLimit: (value) => {
@@ -46,8 +49,12 @@ export const useStudyStore = create<StudyStore>()(
       setShuffleSessions: (value) => {
         set({ shuffleSessions: value })
       },
+      setStudyDirection: (value) => {
+        set({ studyDirection: value })
+      },
       startSession: (deck) => {
         const shuffle = get().shuffleSessions
+        const studyDirection = get().studyDirection
         const queue = buildDeckQueue(
           deck,
           get().progressByDeck[deck.id],
@@ -59,6 +66,7 @@ export const useStudyStore = create<StudyStore>()(
             deckId: deck.id,
             queue,
             shuffle,
+            studyDirection,
             reviewedCardIds: [],
             stats: defaultStats(),
           },
@@ -128,6 +136,7 @@ export const useStudyStore = create<StudyStore>()(
         version: state.version,
         dailyNewLimit: state.dailyNewLimit,
         shuffleSessions: state.shuffleSessions,
+        studyDirection: state.studyDirection,
         progressByDeck: state.progressByDeck,
       }),
       merge: (persisted, current) => ({

@@ -1,5 +1,6 @@
 export type CardRating = 'again' | 'hard' | 'good' | 'easy'
 export type CardState = 'new' | 'learning' | 'review' | 'relearning'
+export type StudyDirection = 'thaiToEnglish' | 'englishToThai'
 
 export type Flashcard = {
   id: string
@@ -43,6 +44,7 @@ export type StudySession = {
   deckId: string
   queue: string[]
   shuffle: boolean
+  studyDirection: StudyDirection
   reviewedCardIds: string[]
   stats: StudyStats
 }

@@ -5,13 +5,18 @@ import { loadDecks } from './decks/registry'
 import { getDeckStats } from './srs/queue'
 import { getNextIntervalLabel } from './srs/scheduler'
 import { useStudyStore } from './store/useStudyStore'
-import type { CardRating, Deck } from './types'
+import type { CardRating, Deck, StudyDirection } from './types'
 
 const ratingLabels: Record<CardRating, string> = {
   again: 'Again',
   hard: 'Hard',
   good: 'Good',
   easy: 'Easy',
+}
+
+const directionLabels: Record<StudyDirection, string> = {
+  thaiToEnglish: 'Thai -> English',
+  englishToThai: 'English -> Thai',
 }
 
 function App() {
@@ -23,10 +28,12 @@ function App() {
 
   const dailyNewLimit = useStudyStore((state) => state.dailyNewLimit)
   const shuffleSessions = useStudyStore((state) => state.shuffleSessions)
+  const studyDirection = useStudyStore((state) => state.studyDirection)
   const progressByDeck = useStudyStore((state) => state.progressByDeck)
   const session = useStudyStore((state) => state.session)
   const setDailyNewLimit = useStudyStore((state) => state.setDailyNewLimit)
   const setShuffleSessions = useStudyStore((state) => state.setShuffleSessions)
+  const setStudyDirection = useStudyStore((state) => state.setStudyDirection)
   const startSession = useStudyStore((state) => state.startSession)
   const rateCard = useStudyStore((state) => state.rateCard)
   const endSession = useStudyStore((state) => state.endSession)
@@ -38,6 +45,8 @@ function App() {
   const currentCard = selectedDeck?.cards.find((card) => card.id === currentCardId)
   const currentProgress =
     selectedDeck && currentCard ? progressByDeck[selectedDeck.id]?.[currentCard.id] : undefined
+  const activeStudyDirection = session?.studyDirection ?? studyDirection
+  const isThaiToEnglish = activeStudyDirection === 'thaiToEnglish'
 
   const handleStart = (deck: Deck) => {
     setSelectedDeckId(deck.id)
@@ -68,8 +77,11 @@ function App() {
     if (!currentCard?.audioFile) {
       return
     }
+    if (!isThaiToEnglish && !showAnswer) {
+      return
+    }
     playCurrentAudio()
-  }, [currentCardId, currentCard?.audioFile])
+  }, [currentCardId, currentCard?.audioFile, isThaiToEnglish, showAnswer])
 
   useEffect(() => {
     setDailyNewLimitDraft(String(dailyNewLimit))
@@ -122,6 +134,21 @@ function App() {
               onChange={(event) => setShuffleSessions(event.target.checked)}
             />
           </div>
+          <div className="setting-row">
+            <label htmlFor="study-direction">Study direction</label>
+            <select
+              id="study-direction"
+              className="setting-select"
+              value={studyDirection}
+              onChange={(event) => setStudyDirection(event.target.value as StudyDirection)}
+            >
+              {(Object.keys(directionLabels) as StudyDirection[]).map((direction) => (
+                <option key={direction} value={direction}>
+                  {directionLabels[direction]}
+                </option>
+              ))}
+            </select>
+          </div>
         </section>
       )}
 
@@ -171,18 +198,26 @@ function App() {
               <audio ref={audioRef} preload="auto" src={currentCard.audioFile} />
             )}
             <p className="card-label">Prompt</p>
-            <h2 className="thai-word">
-              {currentCard.thai ? <span className="thai-script">{currentCard.thai}</span> : null}
-              <span className="romanized-script">{currentCard.romanized}</span>
-            </h2>
-            <button
-              className="secondary replay"
-              onClick={playCurrentAudio}
-              disabled={!currentCard.audioFile}
-            >
-              <Volume2 size={16} aria-hidden="true" />
-              Replay Audio
-            </button>
+            {isThaiToEnglish ? (
+              <>
+                <h2 className="thai-word">
+                  {currentCard.thai ? <span className="thai-script">{currentCard.thai}</span> : null}
+                  <span className="romanized-script">{currentCard.romanized}</span>
+                </h2>
+                <button
+                  className="secondary replay"
+                  onClick={playCurrentAudio}
+                  disabled={!currentCard.audioFile}
+                >
+                  <Volume2 size={16} aria-hidden="true" />
+                  Replay Audio
+                </button>
+              </>
+            ) : (
+              <h2 className="thai-word">
+                <span>{currentCard.english}</span>
+              </h2>
+            )}
             {!showAnswer ? (
               <button className="primary reveal" onClick={() => setShowAnswer(true)}>
                 <Eye size={16} aria-hidden="true" />
@@ -191,9 +226,21 @@ function App() {
             ) : (
               <>
                 <div className="answer-block">
-                  <p>
-                    <strong>English:</strong> {currentCard.english}
-                  </p>
+                  {isThaiToEnglish ? (
+                    <p>
+                      <strong>English:</strong> {currentCard.english}
+                    </p>
+                  ) : (
+                    <p>
+                      <strong>Thai:</strong>{' '}
+                      {currentCard.thai ? (
+                        <span className="thai-script inline-thai">{currentCard.thai}</span>
+                      ) : (
+                        <span className="muted">No Thai script provided.</span>
+                      )}{' '}
+                      <span className="romanized-script inline-romanized">{currentCard.romanized}</span>
+                    </p>
+                  )}
                   {currentCard.literal ? (
                     <p>
                       <strong>Literal:</strong> {currentCard.literal}
@@ -206,7 +253,14 @@ function App() {
                   ) : null}
                   {!currentCard.audioFile ? (
                     <p className="muted">No audio available.</p>
-                  ) : null}
+                  ) : (
+                    !isThaiToEnglish && (
+                      <button className="secondary" onClick={playCurrentAudio}>
+                        <Volume2 size={16} aria-hidden="true" />
+                        Replay Thai Audio
+                      </button>
+                    )
+                  )}
                 </div>
 
                 <div className="rating-grid">
@@ -237,6 +291,9 @@ function App() {
             </p>
             <p>
               <strong>Order:</strong> {session.shuffle ? 'Shuffled' : 'Due then New'}
+            </p>
+            <p>
+              <strong>Direction:</strong> {directionLabels[session.studyDirection]}
             </p>
             <p>
               <strong>Reviewed:</strong> {session.stats.reviewed}

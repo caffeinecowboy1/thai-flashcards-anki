@@ -78,10 +78,30 @@
   color: var(--ink-main);
 }
 
+.setting-row select {
+  border: 1px solid var(--line-main);
+  border-radius: 11px;
+  font-size: 1rem;
+  padding: 0.45rem 0.55rem;
+  font-family: inherit;
+  background: #fff;
+  color: var(--ink-main);
+}
+
 .setting-row input:focus-visible {
   outline: 2px solid var(--accent-soft);
   outline-offset: 2px;
   border-color: var(--accent-main);
+}
+
+.setting-row select:focus-visible {
+  outline: 2px solid var(--accent-soft);
+  outline-offset: 2px;
+  border-color: var(--accent-main);
+}
+
+.setting-select {
+  width: 178px;
 }
 
 .setting-checkbox input {
@@ -229,6 +249,17 @@ button:disabled {
   color: var(--ink-dim);
   margin-top: 0.26rem;
   font-family: 'Avenir Next', 'Nunito Sans', 'Segoe UI', sans-serif;
+}
+
+.inline-thai {
+  display: inline;
+  font-size: 1em;
+}
+
+.inline-romanized {
+  display: inline;
+  margin-top: 0;
+  font-size: 0.95em;
 }
 
 .reveal {
