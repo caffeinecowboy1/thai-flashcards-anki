@@ -24,6 +24,24 @@ npm run build
 npm run preview
 ```
 
+## Generate Audio (Python)
+
+From the repo root:
+
+```bash
+cd generate-thai-audio
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install edge-tts
+python generate_thai_audio.py
+```
+
+Deactivate when done:
+
+```bash
+deactivate
+```
+
 ## Deck Structure
 
 Decks are auto-discovered from folders inside `decks/`.
